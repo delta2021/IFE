@@ -1,8 +1,14 @@
 class Restaurant {
+
+    static instance = null;
     constructor({cash, seats, staff}){
+        if (this.constructor.instance) {
+            return this.constructor.instance;
+        }
         this.cash = cash || 0;
         this.seats = seats || 0;
         this.staff = staff || [];
+        this.constructor.instance = this;
     }
 
     hire(employee){
@@ -24,6 +30,7 @@ class Restaurant {
 }
 
 class Employee {
+ 
     constructor(ID, name, wage){
         this.ID = ID;
         this.name = name;
@@ -36,18 +43,28 @@ class Employee {
 }
 
 class Waiter extends Employee {
-   takeOrder(customer, menu, cook){
+    static instance = null;
+    constructor(ID, name, wage){
+    
+        super(ID, name, wage);
+        console.log(this.constructor.instance)
+        if (this.constructor.instance) return this.constructor.instance;
+        this.constructor.instance = this;
+
+    }
+   takeOrder(customer, menu){
         const dish = customer.order(menu);
         console.log(this.name + ' took down the order.');
-        this.callCook(cook, dish);
+        this.callCook(dish);
        
     }
-    callCook(cook, dish){
+    callCook(dish){
         console.log(this.name + ' pass the order to kitchen.');
-        cook.cook(this, dish);
+        new Cook().cook(dish);
     }
    serve(dish){
        console.log(this.name + ' served ' + dish.name);
+       
    }
    
 
@@ -55,13 +72,23 @@ class Waiter extends Employee {
 
 
 class Cook extends Employee {
-    cook(waiter, dish){
-        console.log(this.name + ' ' +'cooked ' + dish.name);
-        this.callWaiter(waiter, dish);
+    static instance = null;
+    constructor(ID, name, wage){
+    
+        super(ID, name, wage);
+        console.log(this.constructor.instance)
+        if (this.constructor.instance) return this.constructor.instance;
+        this.constructor.instance = this;
+
     }
-    callWaiter(waiter, dish){
+
+    cook(dish){
+        console.log(this.name + ' ' +'cooked ' + dish.name);
+        this.callWaiter(dish);
+    }
+    callWaiter(dish){
         console.log(this.name + ' told waiter to serve the dish.');
-        waiter.serve(dish);
+        new Waiter().serve(dish);
     }
 }
 
@@ -79,7 +106,7 @@ class Customer {
     }
 
     eat(){
-        console.log('customer eats');
+        console.log('customer ate and left.');
     }
 
     pay(){
@@ -101,14 +128,18 @@ class Dish{
 }
 
 
+
+
+
+const newCook = new Cook(1, "Tony", 10000);
+const newWaiter = new Waiter(2, 'Jay', 8000);
+
 const ifeRestaurant = new Restaurant({
     cash: 1000000,
     seats: 1,
     staff: []
 });
 
-const newCook = new Cook(1, "Tony", 10000);
-const newWaiter = new Waiter(2, 'Jay', 8000);
 
 ifeRestaurant.hire(newCook);
 ifeRestaurant.hire(newWaiter);
