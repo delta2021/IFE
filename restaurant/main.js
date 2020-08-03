@@ -64,7 +64,7 @@ class Waiter extends Employee {
     }
    serve(dish){
        console.log(this.name + ' served ' + dish.name);
-       
+
    }
    
 
@@ -131,7 +131,7 @@ class Dish{
 
 
 
-const newCook = new Cook(1, "Tony", 10000);
+const newCook = new Cook(1, "Ellen", 10000);
 const newWaiter = new Waiter(2, 'Jay', 8000);
 
 const ifeRestaurant = new Restaurant({
