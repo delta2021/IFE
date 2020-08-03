@@ -1,7 +1,7 @@
 function Restaurant({cash, seats, staff}){
     this.cash = cash || 0;
     this.seats = seats || 0;
-    this.staff = staff || []
+    this.staff = staff || [];
 }
 
 Restaurant.prototype.hire = function(employee){
@@ -97,7 +97,11 @@ Chef.prototype = Object.create(Employee.prototype);
 Chef.prototype.constructor = Chef;
 Chef.prototype.work = function(dishes){
     console.log(this.name + ' is cooking ' + dishes.name);
-    this.callWaiter(dishes);
+    new Promise((res, rej) => {
+        setTimeout(() => {
+           res(dishes)
+        }, 3000)
+    }).then(this.callWaiter);
 }
 
 Chef.prototype.callWaiter = function(dishes){
@@ -116,27 +120,71 @@ function Customer(name){
     this.name = name;
 }
 
-Customer.prototype.sit = function(id){
-    console.log('customer sits down at table ' + id);
+Customer.prototype.sit = function(resolve, reject){
+    console.log('customer sits down.');
+  
+    setTimeout(() => {
+        resolve(menu);
+        
+    }, 3000)
 }
 
 Customer.prototype.callWaiter = function(menu){
    const waiter =  Waiter.getInstance();
-   const foods = [];
-   foods.push(this.order(menu));
+   console.log(this.name + ' called waiter');
+   const foods = this.order(menu)
    waiter.work(foods);
 }
 
 Customer.prototype.order = function(menu){
-    const i =  Math.floor((Math.random() * menu.length));
-    console.log(this.name + ' ordered ' + menu[i].name);
-    return menu[i];
+    const ordered = [];
+    let n = Math.floor(Math.random()*6);
+    while (n == 0){
+        n = Math.floor(Math.random()*6);
+    }
+    this.remaining = n;
+
+    while (n >= 1){
+        const i =  Math.floor((Math.random() * menu.length));
+        ordered.push(menu[i]);
+        n--;
+    }
+
+    this.ordered = ordered;
+  
+    const names = ordered.map(el => {
+        return el.name;
+    })
+   
+    console.log(this.name + ' decides to order ' + names.join(', '));
+    return ordered;
+}
+
+Customer.prototype.pay = function(){
+    const price = this.ordered.reduce((res, curr) => {
+        return res += curr.price;
+    }, 0);
+    console.log('customer paid ' + price + ' CNY');
+    Restaurant.getInstance({}).cash += price;
+ 
 }
 
 Customer.prototype.eat = function(dishes){
     console.log(this.name + ' is eating '+ dishes.name);
-    Customer.instance = null;
-    console.log(this.name + ' left.');
+    this.remaining--;
+    if (this.remaining === 0){
+        new Promise((res, rej) => {
+            setTimeout(() => {
+                res();
+            }, 3000)
+        }).then(() => {
+            this.pay.call(this);
+            Customer.instance = null;
+            console.log(this.name + ' left.');
+        })
+       
+    }
+    
 }
 
 Customer.getInstance = function(name){
@@ -146,12 +194,15 @@ Customer.getInstance = function(name){
     return this.instance;
 }
 
-function Dishes(name, cost, price){
+function Dishes(name, cost, price, time){
     this.name = name;
     this.cost = cost;
     this.price = price;
+    this.time = time
 }
 
+
+const time = 1000;
 const ifeRestaurant = Restaurant.getInstance({
     cash: 1000000,
     seats: 1,
@@ -165,21 +216,22 @@ const menu = (function (){
     const cost = [30, 40, 50, 20, 20, 10];
     const menu = [];
     for (let i = 0, len = food.length; i < len; i++){
-        const newDish = new Dishes(food[i], cost[i], cost[i] * 1.3);
+        const newDish = new Dishes(food[i], cost[i], cost[i] * 1.3, Math.floor(Math.random()*10));
         menu.push(newDish);
     }
     return menu;
 }())
+
+
+
 
 ifeRestaurant.hire(chef);
 ifeRestaurant.hire(waiter);
 
 const people = ['Lizzy', 'Erika', 'Chris', 'John', 'Pete'];
 
-people.forEach(person => {
-    const cust = Customer.getInstance(person);
-    cust.callWaiter(menu);
-})
+let person  = people[1];
+const cust = Customer.getInstance(person);
+new Promise(cust.sit.bind(cust)).then(cust.callWaiter.bind(cust));
 
-ifeRestaurant.fire(chef);
-ifeRestaurant.fire(2);
+
