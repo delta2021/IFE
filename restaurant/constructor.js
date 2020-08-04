@@ -55,6 +55,7 @@ Waiter.prototype.work = function(item){
     if (Array.isArray(item)) {
         console.log(this.name + ' took order: ' + item.map(el => el.name)
         .join(', '));//把order放在dom上
+        return item;
     } else {
         console.log(this.name + ' served ' + item.name);
     }
@@ -69,12 +70,32 @@ Waiter.getInstance = function(id, name, wage){
 
 function Chef(id, name, wage){
     Employee.call(this, id, name, wage);
+    this.observer = [];
 }
 
 Chef.prototype = Object.create(Employee.prototype);
 Chef.prototype.constructor = Chef;
 Chef.prototype.work = function(dishes){
-    console.log(this.name + ' is cooking ' + dishes.name);  
+    // dishes.forEach(el => {
+    //     console.log(this)
+    //     console.log(this.name + ' is cooking ' + el.name);  
+    //     this.observer.forEach(fn => {
+    //         fn(el);
+    //     })
+        
+    // })
+    let n = dishes.length;
+    while (n-- > 0){
+        //promise
+    }
+   
+}
+Chef.prototype.subscribe = function(fn){
+    this.observer.push(fn);
+}
+Chef.prototype.unsubscribe = function(fn){
+    const i = this.observer.indexOf(fn);
+    this.observer.splice(i, 1);
 }
 Chef.getInstance = function(id, name, wage){
     if (!this.instance){
@@ -83,7 +104,9 @@ Chef.getInstance = function(id, name, wage){
     return this.instance;
 }
 
-function Customer(){};
+function Customer(name){
+    this.name = name
+};
 
 Customer.prototype.sit = function(){
     console.log('customer sits down.');
