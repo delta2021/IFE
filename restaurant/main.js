@@ -1,168 +1,89 @@
-class Restaurant {
-
-    static instance = null;
-    constructor({cash, seats, staff}){
-        if (this.constructor.instance) {
-            return this.constructor.instance;
-        }
-        this.cash = cash || 0;
-        this.seats = seats || 0;
-        this.staff = staff || [];
-        this.constructor.instance = this;
-    }
-
-    hire(employee){
-        this.staff.push(employee);
-    }
-
-    fire(employee){
-        if (!(employee instanceof Employee)) return false;
-        for (const s of this.staff) {
-            if (s.ID === employee.ID) {
-                this.staff.splice(index, 1);
-                return true;
-            }
-        }
-
-        return false;
-       
-    }
-}
-
-class Employee {
- 
-    constructor(ID, name, wage){
-        this.ID = ID;
-        this.name = name;
-        this.wage = wage;
-    }
-
-    work(){
-        console.log(this.name + 'worked.');
-    }
-}
-
-class Waiter extends Employee {
-    static instance = null;
-    constructor(ID, name, wage){
-    
-        super(ID, name, wage);
-        console.log(this.constructor.instance)
-        if (this.constructor.instance) return this.constructor.instance;
-        this.constructor.instance = this;
-
-    }
-   takeOrder(customer, menu){
-        const dish = customer.order(menu);
-        console.log(this.name + ' took down the order.');
-        this.callCook(dish);
-       
-    }
-    callCook(dish){
-        console.log(this.name + ' pass the order to kitchen.');
-        new Cook().cook(dish);
-    }
-   serve(dish){
-       console.log(this.name + ' served ' + dish.name);
-
-   }
-   
-
-}
-
-
-class Cook extends Employee {
-    static instance = null;
-    constructor(ID, name, wage){
-    
-        super(ID, name, wage);
-        console.log(this.constructor.instance)
-        if (this.constructor.instance) return this.constructor.instance;
-        this.constructor.instance = this;
-
-    }
-
-    cook(dish){
-        console.log(this.name + ' ' +'cooked ' + dish.name);
-        this.callWaiter(dish);
-    }
-    callWaiter(dish){
-        console.log(this.name + ' told waiter to serve the dish.');
-        new Waiter().serve(dish);
-    }
-}
-
-class Customer {
-    constructor(tableId){
-        this.tableId = tableId;
-        this.bill = [];
-    }
-
-    order(menu){
-        const i =  Math.floor((Math.random() * menu.length));
-        this.bill.push(menu[i]);
-        console.log('customer at table ' + this.tableId + ' ordered ' + menu[i].name);
-        return menu[i];
-    }
-
-    eat(){
-        console.log('customer ate and left.');
-    }
-
-    pay(){
-        const money = this.bill.reduce((res, curr) => {
-            res += curr.price;
-            return res;
-        }, 0);
-        return money;
-    }
-}
-
-
-class Dish{
-    constructor(name, cost, price) {
-        this.name = name;
-        this.cost = cost;
-        this.price = price;
-    }
-}
-
-
-
-
-
-const newCook = new Cook(1, "Ellen", 10000);
-const newWaiter = new Waiter(2, 'Jay', 8000);
-
-const ifeRestaurant = new Restaurant({
+const time = 1000;
+const ifeRestaurant = Restaurant.getInstance({
     cash: 1000000,
     seats: 1,
     staff: []
 });
-
-
-ifeRestaurant.hire(newCook);
-ifeRestaurant.hire(newWaiter);
-
+const chef = Chef.getInstance(1, 'Bob', 12000);
+const waiter = Waiter.getInstance(2, 'Luke', 9500);
+ifeRestaurant.hire(chef);
+ifeRestaurant.hire(waiter);
 
 const menu = (function (){
     const food = ['chicken', 'pork', 'beef', 'broccoli', 'dessert', 'soup'];
     const cost = [30, 40, 50, 20, 20, 10];
     const menu = [];
     for (let i = 0, len = food.length; i < len; i++){
-        const newDish = new Dish(food[i], cost[i], cost[i] * 1.3);
+        const newDish = new Dishes(food[i], cost[i], cost[i] * 1.3, Math.floor(Math.random()*10));
         menu.push(newDish);
     }
     return menu;
 }())
 
+workFlow();
 
-const customers = [];
-for (let i = 0; i < 5; i++){
-    customers.push(new Customer(1));
+function workFlow(){
+    let cust;
+    new Promise((res, rej) => {
+        setTimeout(() => {
+            res();
+        }, 3000)
+    })
+    .then(() => {
+        cust = new Customer()
+        cust.sit();
+        return new Promise((res, rej) => {
+            setTimeout(() => {
+                cust.order(menu);
+                res(cust.ordered);
+            }, 3000)
+            
+        })
+    })
+    .then((list) => {
+        return new Promise((res, rej) => {
+            setTimeout(() => {
+                waiter.work(list);
+                res(list);
+            }, 3000)
+           
+        })
+    })
+    .then((list) => {
+        let p = Promise.resolve();
+        for (let i = 0, len = list.length; i < len; i++){
+            const food = list[i];
+            p = p.then(() => {
+                chef.work(food);
+                return new Promise((res, rej) => {
+                    setTimeout(() => {
+                        res()
+                    }, 3000)
+                })
+            })
+            .then(() => {
+                waiter.work(food);
+                return new Promise((res, rej) => {
+                    setTimeout(() => {
+                        res()
+                    }, 3000)
+                })
+            })
+            .then(() => {
+                cust.eat(food);
+                setTimeout(() => {
+                    if (i === len - 1){
+                        cust.pay();
+                    }
+                }, 3000)
+               
+            })
+        }
+          
+          
+        
+    })
+
 }
-customers.forEach(el => {
-    newWaiter.takeOrder(el, menu, newCook);
-    el.eat();
-})
+
 
