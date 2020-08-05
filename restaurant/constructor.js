@@ -76,17 +76,30 @@ function Chef(id, name, wage){
 Chef.prototype = Object.create(Employee.prototype);
 Chef.prototype.constructor = Chef;
 Chef.prototype.work = function(dishes){
-    // dishes.forEach(el => {
-    //     console.log(this)
-    //     console.log(this.name + ' is cooking ' + el.name);  
-    //     this.observer.forEach(fn => {
-    //         fn(el);
-    //     })
-        
-    // })
-    let n = dishes.length;
-    while (n-- > 0){
-        //promise
+    let n = -1;
+    let p = Promise.resolve();
+    while (++n < dishes.length){
+          //把n固定下来。。
+        const j = n;
+        p = p.then(() => {
+            console.log('cooking ' + dishes[j].name + '...');
+           
+            this.observer.forEach(el => {
+                if (Object.keys({el})[0] == 'updateStatus'){
+                    el(dishes[j], '正在做。。')
+                }
+            })
+            return new Promise((res, rej) => {
+                mySetTimeout((d) => {
+                    this.observer.forEach(fn => {
+                        console.log('finished cooking ' + d.name + ', informed waiter.');
+                        fn(d);
+                    })
+                    res();
+                }, dishes[j].time, dishes[j]);
+            })
+        })
+      
     }
    
 }
@@ -114,6 +127,7 @@ Customer.prototype.sit = function(){
 
 Customer.prototype.order = function(menu){
     const ordered = [];
+    const added = new Set();
     let n = Math.floor(Math.random()*6);
     while (n == 0){
         n = Math.floor(Math.random()*6);
@@ -122,9 +136,19 @@ Customer.prototype.order = function(menu){
 
     while (n >= 1){
         const i =  Math.floor((Math.random() * menu.length));
-        ordered.push(menu[i]);
+        //不让点相同的菜。
+        if (added.has(i)){
+            continue;
+        }
+        added.add(i);
+        const food = {};
+        Object.assign(food, menu[i]);
+        food.customer = this;
+        ordered.push(food);
         n--;
     }
+
+
 
     this.ordered = ordered;
   
@@ -153,9 +177,10 @@ Customer.prototype.eat = function(dishes){
 
 
 
-function Dishes(name, cost, price, time){
+function Dishes(name, cost, price, time, customer){
     this.name = name;
     this.cost = cost;
     this.price = price;
-    this.time = time
+    this.time = time;
+    this.customer = customer;
 }

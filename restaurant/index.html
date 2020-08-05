@@ -12,10 +12,10 @@
 
         #waiter img {
            
-            transition: transform .5s;
+            transition: margin .5s;
         }
         #waiter img.right {
-            transform: translateX(500px);
+           margin-left: calc(100% - 150px);
         }
         .container {
             width: 1000px;
@@ -45,11 +45,9 @@
         <span id="cash">20000 rmb</span>
     </div>
 
-    <div id="waiting-list">
-        <p>等待中（2位）</p>
-        <ul>
-            <li>李先生</li>
-            <li>程小姐</li>
+    <div id="waiting" >
+        <p>等待中（<span id="waiting-number">0</span>位）</p>
+        <ul id="waiting-list">
         </ul>
     </div>
 
@@ -63,14 +61,11 @@
                         <p>空闲</p>
                     </div>
                     <div id="chef-busy">
-                        <p>在做宫爆鸡丁...</p>
                         <p>还有<span id="chef-time">3</span>秒完成</p>
                     </div>
                    
                 </div>
                 <ul id="chef-list">
-                    <li>宫爆鸡丁<span>(正在做)</span></li>
-                    <li>炒蛋<span>(待做)</span></li>
 
                 </ul>
             </div>
@@ -85,11 +80,7 @@
                     <p>点餐中...还剩<span id="customer-time">3</span>秒</p>
                 </div>
                 <ul id="customer-list">
-                    <li>宫爆鸡丁<span>(还未上)</span></li>
-                    <li>宫爆鸡丁<span>(还未上)</span></li>
-                    <li>宫爆鸡丁<span>(还未上)</span></li>
-                    <li>宫爆鸡丁<span>(还未上)</span></li>
-                    <li>宫爆鸡丁<span>(还未上)</span></li>
+                   
                 </ul>
 
             </div>
@@ -100,6 +91,7 @@
     </div>
 
     <script src="utils.js"></script>
+    <script src="dom.js"></script>
     <script src="names.js"></script>
     <script src="constructor.js"></script>
     <script src="main.js"></script>

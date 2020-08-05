@@ -49,3 +49,11 @@ function block(milliseconds){
 function myBind(obj, method){
     return obj[method].bind(obj);
 }
+
+
+function mySetTimeout(fn, timeout){
+    setTimeout(() => {
+        const args = Array.prototype.slice.call(arguments, 2);
+        fn(...args);
+    }, timeout);
+}
