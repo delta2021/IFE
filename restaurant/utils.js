@@ -33,6 +33,10 @@ function getRandomInt(min, max){
 }
 
 
+function getRandomSeconds(min, max){
+    return getRandomInt(min, max) * 1000;
+}
+
 function isFunction(functionToCheck) {
     return functionToCheck && {}.toString.call(functionToCheck) === '[object Function]';
    }

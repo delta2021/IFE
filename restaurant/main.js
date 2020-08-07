@@ -10,6 +10,7 @@ ifeRestaurant.hire(chef);
 ifeRestaurant.hire(waiter);
 
 chef.subscribe((food) => {
+    chefList.updateStatus(food.name, '做好了');
     let p = Promise.resolve(food);
     //服务员在顾客处。
     if (waiterAtRight()){
@@ -21,44 +22,42 @@ chef.subscribe((food) => {
         }).then((food) => {
             waiterMoveRight();
             myBind(waiter, 'work')(food);
-            food.customer.eat(food);
-            customerList.updateStatus(food.name, '正在吃。。');
+            startEating(food);
           
             return resolvedPromise(3000, food);
         }).then((food) => {
-            customerList.updateStatus(food.name, '吃完了。。')
-            console.log('吃完了。');
+           
+            finishEating(food);
+         
         })
         //服务员在厨师处。
     } else{
-          //移动到顾客那里， 上菜。
-          
+          //移动到顾客那里， 上菜。   
         p.then((food) => {
             waiterMoveRight();
             myBind(waiter, 'work')(food);
-            food.customer.eat(food);
-            customerList.updateStatus(food.name, '正在吃。。');
+            startEating(food);
             return resolvedPromise(3000, food);
         }).then((food) => {
-            customerList.updateStatus(food.name, '吃完了。。')
-            console.log('吃完了。');
+           finishEating(food);
         })
          
     } 
   
    
 
-});
+}, 'finish');
 
 chef.subscribe((food) => {
+    chefList.updateStatus(food.name, '正在做');
     chefTimer(food.time);
-})
+}, 'start')
 const menu = (function (){
     const food = ['chicken', 'pork', 'beef', 'broccoli', 'dessert', 'soup'];
     const cost = [30, 40, 50, 20, 20, 10];
     const menu = [];
     for (let i = 0, len = food.length; i < len; i++){
-        const newDish = new Dishes(food[i], cost[i], cost[i] * 1.3, getRandomInt(1000, 4000));
+        const newDish = new Dishes(food[i], cost[i], cost[i] * 1.3, getRandomSeconds(1, 4));
         menu.push(newDish);
     }
     return menu;
@@ -82,6 +81,10 @@ const customerQueue = (function(){
             queue.push(new Customer(name));
             console.log('新的顾客来了...');
             updateWaitingList(queue);
+            //顾客超过10个，暂停发号
+            if (queue.length >= 10) {
+                clearInterval(intervalID);
+            }
         }, 20000);
     }
     return {queueList: queue,
@@ -135,13 +138,15 @@ customerQueue.dequeue().then((cust) => {
     if (!document.getElementById('waiter-img').classList.contains('left')){
         waiterMoveLeft();
         return resolvedPromise(500, (cookList) => {
-            myBind(chef, 'work')(cookList);
+            chefList.newList(cookList);    
             return cookList;
-        }, cookList).then(chefList.newList);
+        }, cookList).then(myBind(chef, 'work'));
+    } else {
+        chefList.newList(cookList);
+        return resolvedPromise(0, myBind(chef, 'work'), cookList);
     }
 
-    chefList.newList(cookList)
-    return resolvedPromise(0, myBind(chef, 'work'), cookList);
+   
 })
 
 
@@ -228,8 +233,21 @@ const customerTimer = (function(){
     }
 }())
 
+function startEating(food){
+    food.customer.eat(food);
+    customerList.updateStatus(food.name, '正在吃。。');
+
+}
 
 
+function finishEating(food){
+    customerList.updateStatus(food.name, '吃完了。。');
+    console.log('吃完了。');
+    if (food.isLast) {
+        food.customer.pay();
+        updateCash();
+    }
+}
 
 
 

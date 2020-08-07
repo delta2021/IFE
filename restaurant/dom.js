@@ -73,20 +73,30 @@ const chefList = (function(){
             order.forEach(el => {
                 const li = document.createElement('li');
                 li.setAttribute('id', el.name);
+                li.setAttribute('class', el.name);
                 li.innerHTML = `${el.name}(<span>还没做</span>)`;
                 dom.appendChild(li);
             });
         },
         updateStatus: function(name, status){
-            const span = dom.querySelector('#' + name).querySelector('span');
+            const id = `#${name}`
+  
+            const span = dom.querySelector(id).querySelector('span');
             span.textContent = status;
         
         }
     };
 
-    obj.updateStatus.fName = 'updateStatus';
     return obj;
 
+}())
+
+
+const updateCash = (function(){
+    const dom = getById('cash');
+    return function(){
+        dom.textContent = Restaurant.getInstance({}).cash;
+    }
 }())
 
 

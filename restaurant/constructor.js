@@ -70,7 +70,7 @@ Waiter.getInstance = function(id, name, wage){
 
 function Chef(id, name, wage){
     Employee.call(this, id, name, wage);
-    this.observer = [];
+    this.observer = {finish: [], start: []};
 }
 
 Chef.prototype = Object.create(Employee.prototype);
@@ -83,15 +83,15 @@ Chef.prototype.work = function(dishes){
         const j = n;
         p = p.then(() => {
             console.log('cooking ' + dishes[j].name + '...');
+            console.log(this.observer)
            
-            this.observer.forEach(el => {
-                if (Object.keys({el})[0] == 'updateStatus'){
-                    el(dishes[j], '正在做。。')
-                }
+            this.observer['start'].forEach(el => {
+                el(dishes[j]);
+                
             })
             return new Promise((res, rej) => {
                 mySetTimeout((d) => {
-                    this.observer.forEach(fn => {
+                    this.observer['finish'].forEach(fn => {
                         console.log('finished cooking ' + d.name + ', informed waiter.');
                         fn(d);
                     })
@@ -103,13 +103,16 @@ Chef.prototype.work = function(dishes){
     }
    
 }
-Chef.prototype.subscribe = function(fn){
-    this.observer.push(fn);
+Chef.prototype.subscribe = function(fn, msg){
+    if (this.observer[msg]){
+        this.observer[msg].push(fn);
+    }
+  
 }
-Chef.prototype.unsubscribe = function(fn){
-    const i = this.observer.indexOf(fn);
-    this.observer.splice(i, 1);
-}
+// Chef.prototype.unsubscribe = function(fn){
+//     const i = this.observer.indexOf(fn);
+//     this.observer.splice(i, 1);
+// }
 Chef.getInstance = function(id, name, wage){
     if (!this.instance){
         this.instance = new Chef(id, name, wage);
@@ -147,7 +150,9 @@ Customer.prototype.order = function(menu){
         ordered.push(food);
         n--;
     }
+    //给最后一道菜打上标记。吃完最后一道菜要付款
 
+    ordered[ordered.length - 1].isLast = true;
 
 
     this.ordered = ordered;
@@ -166,8 +171,6 @@ Customer.prototype.pay = function(){
     }, 0);
     console.log('customer paid ' + price + ' CNY');
     Restaurant.getInstance({}).cash += price;
-    workFlow()
- 
 }
 
 Customer.prototype.eat = function(dishes){
