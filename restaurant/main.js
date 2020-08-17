@@ -66,7 +66,7 @@ const menu = (function (){
     const cost = [30, 40, 50, 20, 20, 10, 40, 25, 80, 60, 78, 88, 88];
     const menu = [];
     for (let i = 0, len = food.length; i < len; i++){
-        const newDish = new Dishes(food[i], cost[i], Math.flooer(cost[i] * 1.3), getRandomSeconds(1, 5));
+        const newDish = new Dishes(food[i], cost[i], Math.floor(cost[i] * 1.3), getRandomSeconds(1, 5));
         menu.push(newDish);
     }
     return menu;
