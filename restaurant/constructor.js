@@ -70,7 +70,7 @@ Waiter.getInstance = function(id, name, wage){
 
 function Chef(id, name, wage){
     Employee.call(this, id, name, wage);
-    this.observer = {finish: [], start: []};
+    this.observer = {finish: [], start: [], done: []};
 }
 
 Chef.prototype = Object.create(Employee.prototype);
@@ -83,8 +83,6 @@ Chef.prototype.work = function(dishes){
         const j = n;
         p = p.then(() => {
             console.log('cooking ' + dishes[j].name + '...');
-            console.log(this.observer)
-           
             this.observer['start'].forEach(el => {
                 el(dishes[j]);
                 
@@ -95,6 +93,12 @@ Chef.prototype.work = function(dishes){
                         console.log('finished cooking ' + d.name + ', informed waiter.');
                         fn(d);
                     })
+                    if (j == dishes.length - 1) {
+                        this.observer['done'].forEach(fn => {
+                            console.log('done cooking');
+                            fn();
+                        })
+                    }
                     res();
                 }, dishes[j].time, dishes[j]);
             })
@@ -169,8 +173,15 @@ Customer.prototype.pay = function(){
     const price = this.ordered.reduce((res, curr) => {
         return res += curr.price;
     }, 0);
+
     console.log('customer paid ' + price + ' CNY');
-    Restaurant.getInstance({}).cash += price;
+    customerStatus.setStatus(3);
+    customerTimer(1000);
+    setTimeout(() => {Restaurant.getInstance({}).cash += price;
+     updateCash();
+     customerStatus.setImg(false);
+     workFlow();
+    },1000)
 }
 
 Customer.prototype.eat = function(dishes){

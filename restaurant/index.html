@@ -33,7 +33,10 @@
 
         .container #waiter {
             width: 700px;
-           
+        }
+
+        .hide {
+           display: none;
         }
     </style>
 </head>
@@ -57,10 +60,11 @@
             <div id="chef">
                 <img src="img/chef.jpg" alt="">
                 <div id="chef-status">
-                    <!-- <div id="chef-idle">
+                    <div id="chef-idle">
                         <p>空闲</p>
-                    </div> -->
-                    <div id="chef-busy">
+                    </div>
+                    <div id="chef-busy" class="hide">
+                        <p>正在炒菜...</p>
                         <p>还有<span id="chef-time">0</span>秒完成</p>
                     </div>
                    
@@ -75,9 +79,17 @@
             </div>
         
             <div id="customer">
-                <img src="img/customer.png" alt="">
-                <div>
-                    <p><span id="customer-status">点餐中</span>...还剩<span id="customer-time">3</span>秒</p>
+                <div id="customer-status">
+                        <div id="customer-status-img">
+                            <img id="has-customer" src="img/customer.png" alt="" class="hide">
+                            <img id="no-customer" src="img/table.jpg" alt="" >
+                        </div>
+                        <span id="customer-status-text">
+                        点餐中
+                        </span>
+                        <div id="timer-wrapper">
+                            <span>...还剩</span><span id="customer-time"></span>秒
+                        </div>
                 </div>
                 <ul id="customer-list">
                    

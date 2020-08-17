@@ -92,6 +92,54 @@ const chefList = (function(){
 }())
 
 
+const ChefStatus = (function(){
+    const dom = getById('chef-status');
+    const idle = dom.querySelector('#chef-idle');
+    const busy = dom.querySelector('#chef-busy');
+
+    return {
+        setStatus(isIdle){
+            if (isIdle) {
+                addClass(busy, 'hide');
+                removeClass(idle, 'hide');
+            } else {
+                addClass(idle, 'hide');
+                removeClass(busy, 'hide');
+            }
+        }
+    }
+}())
+
+
+const customerStatus = (function(){
+    const dom = getById('customer-status');
+    const status = ['正在到来', '点餐中', '正在用餐', '付款中'];
+    const text = dom.querySelector('#customer-status-text');
+    const timerWrapper = dom.querySelector('#timer-wrapper');
+    const imgCust = dom.querySelector('#has-customer');
+    const imgTable = dom.querySelector('#no-customer')
+
+    return {
+        setStatus(n){
+            text.textContent = status[n];
+            if (n === 2){
+                addClass(timerWrapper, 'hide');
+            } else {
+                removeClass(timerWrapper, 'hide');
+            }
+        },
+        setImg(hasCust){
+            if (hasCust) {
+                removeClass(imgCust, 'hide');
+                addClass(imgTable, 'hide');
+            } else {
+                removeClass(imgTable, 'hide');
+                addClass(imgCust, 'hide');
+            }
+        }
+    }
+}())
+
 const updateCash = (function(){
     const dom = getById('cash');
     return function(){
@@ -108,3 +156,18 @@ function waiterMoveRound(){
         waiterMoveLeft();
     })
 }
+
+
+const chefTimer = (function(){
+    const dom = document.getElementById('chef-time');
+    return function(time){
+        timer(dom, time);
+    }
+}())
+
+const customerTimer = (function(){
+    const dom = document.getElementById('customer-time');
+    return function(time){
+        timer(dom, time);
+    }
+}())
