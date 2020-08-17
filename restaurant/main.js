@@ -83,22 +83,26 @@ const customerQueue = (function(){
         queue.push(new Customer(name));
         console.log('新的顾客来了...');
         updateWaitingList(queue);
-        intervalID = setInterval(() => {
-            const i = getRandomInt(0, personNames.length - 1);
-            const name = personNames[i];
-            queue.push(new Customer(name));
-            console.log('新的顾客来了...');
-            updateWaitingList(queue);
-            //顾客超过10个，暂停发号
-            if (queue.length >= 10) {
-                clearInterval(intervalID);
-                intervalID = undefined;
-            }
-        }, 10000);
+        if (intervalID == undefined) {
+            intervalID = setInterval(() => {
+                const i = getRandomInt(0, personNames.length - 1);
+                const name = personNames[i];
+                queue.push(new Customer(name));
+                console.log('新的顾客来了...');
+                updateWaitingList(queue);
+                //顾客超过10个，暂停发号
+                if (queue.length >= 10) {
+                    clearInterval(intervalID);
+                    intervalID = undefined;
+                }
+            }, 10000);
+        }
+        
     }
     return {queueList: queue,
         dequeue: function(){
-            if (intervalID == undefined) {
+            if (intervalID == undefined && queue.length == 0
+                ) {
                 start();
             }
             if (queue.length > 0){
